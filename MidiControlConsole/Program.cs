@@ -5,12 +5,13 @@ namespace MidiControl
 {
     class Program
     {
+        static readonly LPD lpd = new LPD();
+        static readonly SmartPAD smartpad = new SmartPAD();
         static void Main(string[] args)
         {
-            var x = new Thread(SmartPAD.Start);
+            var x = new Thread(smartpad.Start);
             x.Start();
 
-            var lpd = new LPD();
             var y = new Thread(lpd.Start);
             y.Start();
 

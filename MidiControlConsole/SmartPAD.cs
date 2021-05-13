@@ -6,7 +6,7 @@ using System.IO;
 
 namespace MidiControl
 {
-    public static class SmartPAD
+    public class SmartPAD
     {
         static ScrollControl sc;
         static DisplayShow ds;
@@ -37,10 +37,10 @@ namespace MidiControl
             public Dictionary<string, ActionExecutionLight> actions;
         }
 
-        public static Dictionary<string, Action> actions;
-        public static Dictionary<int, string> side_buttons;
+        public Dictionary<string, Action> actions;
+        public Dictionary<int, string> side_buttons;
 
-        public static void Start()
+        public void Start()
         {
             var f = File.OpenText(@"C:\Users\Alexia\OneDrive\Documents\LINQPad Queries\settings.yml");
             var deserializer = new YamlDotNet.Serialization.Deserializer();
@@ -77,7 +77,7 @@ namespace MidiControl
             ds.change_color("red", ds.get_address(0, 0));
         }
 
-        private static void msg_parser(object sender, MidiInMessageEventArgs e)
+        private void msg_parser(object sender, MidiInMessageEventArgs e)
         {
             var data = BitConverter.GetBytes(e.RawMessage);
 
