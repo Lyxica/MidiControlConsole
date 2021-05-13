@@ -11,10 +11,10 @@ namespace MidiControl
     {
         private readonly MidiDevice md;
         private readonly MidiIn mi;
+        private Dictionary<int, string> _sideButtons = new Dictionary<int, string>();
         private Dictionary<string, Action> actions;
         private DisplayShow ds;
         private ScrollControl sc;
-        private Dictionary<int, string> side_buttons;
 
         public SmartPAD()
         {
@@ -43,10 +43,6 @@ namespace MidiControl
             var actions = deserializer.Deserialize<Dictionary<string, Action>>(f);
             f.Close();
 
-            var y = File.OpenText(@"C:\Users\Alexia\OneDrive\Documents\LINQPad Queries\side_buttons.yml");
-            side_buttons = deserializer.Deserialize<Dictionary<int, string>>(y);
-            y.Close();
-
             sc = new ScrollControl(md);
             ds = new DisplayShow(md);
 
@@ -63,9 +59,9 @@ namespace MidiControl
             }
             else if (data[0] == 0x9F) // Side buttons
             {
-                if (side_buttons.ContainsKey(data[1]))
+                if (_sideButtons.ContainsKey(data[1]))
                 {
-                    var proc = Process.Start(side_buttons[data[1]]);
+                    var proc = Process.Start(_sideButtons[data[1]]);
                     User32API.SetForegroundWindow(proc.MainWindowHandle);
                 }
             }
@@ -77,7 +73,16 @@ namespace MidiControl
             }
         }
 
-        public void OnYmlChange(string name, string data) { }
+        public void OnYmlChange(string name, string data)
+        {
+            switch (name)
+            {
+                case "side_buttons.yml":
+                    var deserializer = new Deserializer();
+                    _sideButtons = deserializer.Deserialize<Dictionary<int, string>>(data);
+                    break;
+            }
+        }
 
         private struct Action
         {
