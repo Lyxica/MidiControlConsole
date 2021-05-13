@@ -16,16 +16,9 @@ namespace MidiControl
 
         private readonly ConcurrentDictionary<int, MidiEvent> event_list = new ConcurrentDictionary<int, MidiEvent>();
 
-        private readonly Dictionary<int, string> lut = new Dictionary<int, string>
-        {
-            {51, "__System"},
-            {52, "__ActiveProcess"},
-            {55, "foobar2000"},
-            {57, "chrome"},
-            {58, "Discord"}
-        };
-
         private readonly EventWaitHandle wait_event = new EventWaitHandle(false, EventResetMode.AutoReset);
+
+        private Dictionary<int, string> lut = new Dictionary<int, string>();
 
         public LPD()
         {
