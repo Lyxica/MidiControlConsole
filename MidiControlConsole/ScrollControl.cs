@@ -12,25 +12,12 @@ namespace MidiControl
         private const int PULSE_TIME = 10;
         private const int SCROLL_MULTIPLIER = 5;
 
-        private MidiDevice md;
-        private int current_value = 0;
+        private readonly MidiDevice md;
+
+        private readonly EventWaitHandle wait_event = new EventWaitHandle(false, EventResetMode.AutoReset);
+        private int current_value;
+        private int scroll_amount;
         private int wait_time = 0;
-        private int scroll_amount = 0;
-
-        private EventWaitHandle wait_event = new System.Threading.EventWaitHandle(false, EventResetMode.AutoReset);
-
-        private void start()
-        {
-            while (true)
-            {
-                if (current_value == 0)
-                {
-                    wait_event.WaitOne();
-                }
-                Thread.Sleep(PULSE_TIME);
-                User32API.Scroll(scroll_amount);
-            }
-        }
 
         public ScrollControl(MidiDevice md)
         {
@@ -40,10 +27,21 @@ namespace MidiControl
             thread.Start();
         }
 
+        private void start()
+        {
+            while (true)
+            {
+                if (current_value == 0) { wait_event.WaitOne(); }
+
+                Thread.Sleep(PULSE_TIME);
+                User32API.Scroll(scroll_amount);
+            }
+        }
+
         public void reset()
         {
             //midi.Reset();
-            md.Send(new byte[] { ROUTE_ID, KNOB_CONTROLLER_ID, NEUTRAL_VALUE, 0 });
+            md.Send(new byte[] {ROUTE_ID, KNOB_CONTROLLER_ID, NEUTRAL_VALUE, 0});
             //midi.SendBuffer(new byte[] { ROUTE_ID, KNOB_CONTROLLER_ID, NEUTRAL_VALUE, 0 });
             current_value = 0;
         }
@@ -52,17 +50,14 @@ namespace MidiControl
         {
             if (value == 0)
             {
-                md.Send(new byte[] { ROUTE_ID, KNOB_CONTROLLER_ID, 1, 0 });
+                md.Send(new byte[] {ROUTE_ID, KNOB_CONTROLLER_ID, 1, 0});
                 //midi.SendBuffer(new byte[] { ROUTE_ID, KNOB_CONTROLLER_ID, 1, 0 });
                 return;
             }
 
             var rel_value = value - NEUTRAL_VALUE;
 
-            if (current_value == rel_value)
-            {
-                return;
-            }
+            if (current_value == rel_value) { return; }
 
             if (rel_value == 0)
             {
@@ -75,6 +70,5 @@ namespace MidiControl
             current_value = rel_value;
             wait_event.Set();
         }
-
     }
 }

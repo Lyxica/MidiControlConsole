@@ -4,12 +4,9 @@ namespace MidiControl
 {
     public class MidiDevice
     {
-        private int device_id;
+        private readonly int device_id;
 
-        public MidiDevice(int device_id)
-        {
-            this.device_id = device_id;
-        }
+        public MidiDevice(int device_id) { this.device_id = device_id; }
 
         public void Send(byte[] data)
         {
