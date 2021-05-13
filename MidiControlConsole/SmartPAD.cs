@@ -8,12 +8,12 @@ namespace MidiControl
 {
     public class SmartPAD
     {
-        static ScrollControl sc;
-        static DisplayShow ds;
-        static MidiDevice md;
-        static MidiIn mi;
+        ScrollControl sc;
+        DisplayShow ds;
+        MidiDevice md;
+        MidiIn mi;
 
-        public struct Action
+        struct Action
         {
             public struct ActionExecutionLight
             {
@@ -37,8 +37,8 @@ namespace MidiControl
             public Dictionary<string, ActionExecutionLight> actions;
         }
 
-        public Dictionary<string, Action> actions;
-        public Dictionary<int, string> side_buttons;
+        Dictionary<string, Action> actions;
+        Dictionary<int, string> side_buttons;
 
         public SmartPAD()
         {
