@@ -84,7 +84,9 @@ namespace MidiControl
 			}
 		}
 
-		private void midiIn_messageReceive(object sender, MidiInMessageEventArgs e)
+
+
+		void midiIn_messageReceive(object sender, MidiInMessageEventArgs e)
 		{
 			var concrete_event = ((NAudio.Midi.ControlChangeEvent)e.MidiEvent);
 			int controller = (int)concrete_event.Controller;
@@ -105,7 +107,7 @@ namespace MidiControl
 			}
 		}
 
-		private void SetVolumeMatchingSessionNames(string proc_name, float volume)
+		void SetVolumeMatchingSessionNames(string proc_name, float volume)
 		{
 			var matches = GetMatchingAudioSessions(proc_name);
 			foreach (var match in matches)
@@ -114,7 +116,7 @@ namespace MidiControl
 			}
 		}
 
-		private void MuteMatchingSessionNames(string proc_name, bool mute)
+		void MuteMatchingSessionNames(string proc_name, bool mute)
 		{
 			var matches = GetMatchingAudioSessions(proc_name);
 			foreach(var match in matches)
