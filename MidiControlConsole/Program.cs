@@ -11,13 +11,13 @@ namespace MidiControl
             x.Start();
 
             var lpd = new LPD();
-            var y = new Thread(lpd.start);
+            var y = new Thread(lpd.Start);
             y.Start();
 
             while (true)
             {
                 Console.WriteLine("Found the following audio session names:");
-                foreach(var name in lpd.GetAudioSessionNames())
+                foreach (var name in lpd.GetAudioSessionNames())
                 {
                     Console.WriteLine(name);
                 }
