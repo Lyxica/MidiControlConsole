@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using NAudio.CoreAudioApi;
 using NAudio.Midi;
+using YamlDotNet.Serialization;
 
 namespace MidiControl
 {
@@ -127,6 +128,14 @@ namespace MidiControl
             var device = x.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             return Enumerable.Range(0, device.AudioSessionManager.Sessions.Count).Select(x =>
                 Process.GetProcessById((int) device.AudioSessionManager.Sessions[x].GetProcessID).ProcessName);
+        }
+
+        public void OnYmlChange(string name, string data)
+        {
+            if (name != "audio.yml") { return; }
+
+            var deserializer = new Deserializer();
+            lut = deserializer.Deserialize<Dictionary<int, string>>(data);
         }
 
         public class MidiEvent

@@ -77,6 +77,8 @@ namespace MidiControl
             }
         }
 
+        public void OnYmlChange(string name, string data) { }
+
         private struct Action
         {
             public struct ActionExecutionLight
