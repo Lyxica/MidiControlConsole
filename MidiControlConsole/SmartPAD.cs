@@ -40,17 +40,8 @@ namespace MidiControl
         public Dictionary<string, Action> actions;
         public Dictionary<int, string> side_buttons;
 
-        public void Start()
+        public SmartPAD()
         {
-            var f = File.OpenText(@"C:\Users\Alexia\OneDrive\Documents\LINQPad Queries\settings.yml");
-            var deserializer = new YamlDotNet.Serialization.Deserializer();
-            var actions = deserializer.Deserialize<Dictionary<string, Action>>(f);
-            f.Close();
-
-            var y = File.OpenText(@"C:\Users\Alexia\OneDrive\Documents\LINQPad Queries\side_buttons.yml");
-            side_buttons = deserializer.Deserialize<Dictionary<int, string>>(y);
-            y.Close();
-
             for (int i = 0; i < MidiOut.NumberOfDevices; i++)
             {
                 var name = MidiOut.DeviceInfo(i).ProductName;
@@ -68,11 +59,29 @@ namespace MidiControl
                     mi = new MidiIn(i);
                 }
             }
+        }
+
+        public bool IsSupported()
+        {
+            return mi != null && md != null;
+        }
+
+        public void Start()
+        {
+            mi.MessageReceived += msg_parser;
+            mi.Start();
+
+            var f = File.OpenText(@"C:\Users\Alexia\OneDrive\Documents\LINQPad Queries\settings.yml");
+            var deserializer = new YamlDotNet.Serialization.Deserializer();
+            var actions = deserializer.Deserialize<Dictionary<string, Action>>(f);
+            f.Close();
+
+            var y = File.OpenText(@"C:\Users\Alexia\OneDrive\Documents\LINQPad Queries\side_buttons.yml");
+            side_buttons = deserializer.Deserialize<Dictionary<int, string>>(y);
+            y.Close();
 
             sc = new ScrollControl(md);
             ds = new DisplayShow(md);
-            mi.MessageReceived += msg_parser;
-            mi.Start();
 
             ds.change_color("red", ds.get_address(0, 0));
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace MidiControl
 {
@@ -9,11 +8,14 @@ namespace MidiControl
         static readonly SmartPAD smartpad = new SmartPAD();
         static void Main(string[] args)
         {
-            var x = new Thread(smartpad.Start);
-            x.Start();
-
-            var y = new Thread(lpd.Start);
-            y.Start();
+            if (smartpad.IsSupported())
+            {
+                smartpad.Start();
+            }
+            if (lpd.IsSupported())
+            {
+                lpd.Start();
+            }
 
             while (true)
             {

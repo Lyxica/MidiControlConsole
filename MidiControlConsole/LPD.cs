@@ -58,11 +58,21 @@ namespace MidiControl
                     device = new MidiIn(i);
                 }
             }
-            device.MessageReceived += midiIn_messageReceive;
-            device.Start();
         }
 
         public void Start()
+        {
+            device.MessageReceived += midiIn_messageReceive;
+            device.Start();
+            new Thread(ThreadProc).Start();
+        }
+
+        public bool IsSupported()
+        {
+            return device != null;
+        }
+
+        void ThreadProc()
         {
             while (true)
             {
