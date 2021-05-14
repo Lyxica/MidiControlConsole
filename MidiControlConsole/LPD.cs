@@ -119,8 +119,9 @@ namespace MidiControl
         {
             var x = new MMDeviceEnumerator();
             var device = x.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-            return Enumerable.Range(0, device.AudioSessionManager.Sessions.Count).Select(x =>
+            var processNames = Enumerable.Range(0, device.AudioSessionManager.Sessions.Count).Select(x =>
                 Process.GetProcessById((int) device.AudioSessionManager.Sessions[x].GetProcessID).ProcessName);
+            return new HashSet<string>(processNames);
         }
 
         public void OnYmlChange(string name, string data)
