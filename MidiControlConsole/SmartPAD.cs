@@ -15,6 +15,7 @@ namespace MidiControl
         private Dictionary<string, Action> actions;
         private DisplayShow ds;
         private ScrollControl sc;
+        private ShutdownBtn shutdownBtn;
 
         public SmartPAD()
         {
@@ -45,6 +46,7 @@ namespace MidiControl
 
             sc = new ScrollControl(md);
             ds = new DisplayShow(md);
+            shutdownBtn = new ShutdownBtn(ds, 0x1);
 
             ds.change_color("red", ds.get_address(0, 0));
         }
@@ -56,6 +58,8 @@ namespace MidiControl
             if (data[0] == 0x90) // Pad buttons
             {
                 if (data[1] == 0) { User32API.LockWorkStation(); }
+
+                if (data[1] == shutdownBtn.address) { shutdownBtn.Next(); }
             }
             else if (data[0] == 0x9F) // Side buttons
             {
