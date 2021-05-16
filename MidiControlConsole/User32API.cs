@@ -1,10 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace MidiControl
 {
-    public class User32API
+    public partial class User32API
+    {
+        public static void Scroll(int amount)
+        {
+            var x = new INPUT();
+            x.type = 0;
+
+            x.U.mi.dwFlags = MouseEventFlags.WHEEL;
+            x.U.mi.mouseData = amount;
+
+            SendInput(1, new[] {x}, Marshal.SizeOf(x));
+        }
+
+        public static void Type(List<ScanCodeShort> keys)
+        {
+            var inputs = keys.SelectMany(GenerateCodeEvent).ToArray();
+            SendInput((uint) inputs.Length, inputs, Marshal.SizeOf<INPUT>());
+        }
+
+        public static void Type(string text, List<ScanCodeShort> mods)
+        {
+            var modsDownEvents = mods.Select(x => CreateInputEvent(x));
+            var textEvents = GenerateTextInputEvents(text);
+            var modsUpEvents = mods.Select(x => CreateInputEvent(x, false)).Reverse();
+            var events = modsDownEvents.Concat(textEvents).Concat(modsUpEvents).ToArray();
+            SendInput((uint) events.Length, events, Marshal.SizeOf<INPUT>());
+        }
+
+        public static void Type(string text)
+        {
+            var inputs = GenerateTextInputEvents(text).ToArray();
+            SendInput((uint) inputs.Length, inputs, Marshal.SizeOf<INPUT>());
+        }
+
+        private static IEnumerable<INPUT> GenerateTextInputEvents(string text)
+        {
+            foreach (var c in text)
+            {
+                yield return CreateInputEvent(c);
+                yield return CreateInputEvent(c, false);
+            }
+        }
+
+        private static IEnumerable<INPUT> GenerateCodeEvent(ScanCodeShort code)
+        {
+            yield return CreateInputEvent(code);
+            yield return CreateInputEvent(code, false);
+        }
+
+        private static INPUT CreateInputEvent(ScanCodeShort c, bool down = true)
+        {
+            var input = new INPUT();
+            input.type = 1;
+            input.U.ki.dwFlags = KEYEVENTF.SCANCODE | (down ? 0 : KEYEVENTF.KEYUP);
+            input.U.ki.wScan = c;
+            return input;
+        }
+
+        private static INPUT CreateInputEvent(char c, bool down = true)
+        {
+            var input = new INPUT();
+            input.type = 1;
+            input.U.ki.dwFlags = KEYEVENTF.UNICODE | (down ? 0 : KEYEVENTF.KEYUP);
+            input.U.ki.wScan = (ScanCodeShort) c;
+            return input;
+        }
+    }
+
+    public partial class User32API
+    {
+        [DllImport("user32.dll")]
+        public static extern bool LockWorkStation();
+
+        [DllImport("User32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out uint ProcessId);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint SendInput(uint nInputs,
+            [MarshalAs(UnmanagedType.LPArray)] [In]
+            INPUT[] pInputs,
+            int cbSize);
+    }
+
+    public partial class User32API
     {
         [Flags]
         public enum KEYEVENTF : uint
@@ -1071,66 +1161,6 @@ namespace MidiControl
             ///     Clear key
             /// </summary>
             OEM_CLEAR = 0xFE
-        }
-
-        [DllImport("user32.dll")]
-        public static extern bool LockWorkStation();
-
-        [DllImport("User32.dll")]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out uint ProcessId);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint SendInput(uint nInputs,
-            [MarshalAs(UnmanagedType.LPArray)] [In]
-            INPUT[] pInputs,
-            int cbSize);
-
-        public static void Scroll(int amount)
-        {
-            var x = new INPUT();
-            x.type = 0;
-
-            x.U.mi.dwFlags = MouseEventFlags.WHEEL;
-            x.U.mi.mouseData = amount;
-
-            SendInput(1, new[] {x}, Marshal.SizeOf(x));
-        }
-
-        public static void Type(List<ScanCodeShort> keys)
-        {
-            keys = new List<ScanCodeShort> {ScanCodeShort.KEY_L};
-            var key_actions = new List<INPUT>();
-
-            foreach (var key in keys)
-            {
-                var key_act = new INPUT();
-                key_act.type = 1;
-                key_act.U.ki.dwFlags = KEYEVENTF.SCANCODE;
-                key_act.U.ki.wScan = ScanCodeShort.KEY_A;
-                key_actions.Add(key_act);
-                Console.WriteLine(key_act.U.ki);
-            }
-
-            keys.Reverse();
-            foreach (var key in keys)
-            {
-                var key_act = new INPUT();
-                key_act.type = 1;
-                key_act.U.ki.wScan = ScanCodeShort.KEY_A;
-                key_act.U.ki.dwFlags = KEYEVENTF.SCANCODE | KEYEVENTF.KEYUP;
-                key_actions.Add(key_act);
-                Console.WriteLine(key_act.U.ki);
-            }
-
-            Console.WriteLine(SendInput(Convert.ToUInt32(key_actions.Count), key_actions.ToArray(),
-                Marshal.SizeOf(typeof(INPUT))));
-            Console.WriteLine(Marshal.GetLastWin32Error());
         }
 
         public struct INPUT

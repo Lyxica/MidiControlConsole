@@ -2,15 +2,15 @@
 
 namespace MidiControl
 {
-    public class ScrollControl
+    public class KnobScroll
     {
-        private const byte KNOB_CONTROLLER_ID = 7;
         private const byte ROUTE_ID = 0xB0;
 
         // We'll use the middle value as a neutral pivot point. We'll ignore the value 0 as well in order to prevent an unbalanced distributuion of values.
         private const byte NEUTRAL_VALUE = 64;
         private const int PULSE_TIME = 10;
         private const int SCROLL_MULTIPLIER = 5;
+        private readonly byte KNOB_CONTROLLER_ID;
 
         private readonly MidiDevice md;
 
@@ -19,10 +19,11 @@ namespace MidiControl
         private int scroll_amount;
         private int wait_time = 0;
 
-        public ScrollControl(MidiDevice md)
+        public KnobScroll(MidiDevice md, byte knobId)
         {
             // Setup the knobs state
             this.md = md;
+            KNOB_CONTROLLER_ID = knobId;
             var thread = new Thread(start);
             thread.Start();
         }

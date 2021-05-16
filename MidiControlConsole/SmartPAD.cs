@@ -14,7 +14,8 @@ namespace MidiControl
         private Dictionary<int, string> _sideButtons = new Dictionary<int, string>();
         private Dictionary<string, Action> actions;
         private DisplayShow ds;
-        private ScrollControl sc;
+        private KnobScroll ks;
+        private KnobSendInput ksi;
         private ShutdownBtn shutdownBtn;
 
         public SmartPAD()
@@ -44,9 +45,10 @@ namespace MidiControl
             var actions = deserializer.Deserialize<Dictionary<string, Action>>(f);
             f.Close();
 
-            sc = new ScrollControl(md);
+            ks = new KnobScroll(md, 0x7);
             ds = new DisplayShow(md);
             shutdownBtn = new ShutdownBtn(ds, 0x1);
+            ksi = new KnobSendInput(md, 0x0, User32API.ScanCodeShort.OEM_4, User32API.ScanCodeShort.OEM_6);
 
             ds.change_color("red", ds.get_address(0, 0));
         }
@@ -72,8 +74,20 @@ namespace MidiControl
             else if (data[0] == 0xB0) // Wheel/knob controls
             {
                 var knob = data[1];
-                if (knob == 7) { sc.update(data[2]); }
-                else if (knob == 6) { sc.reset(); }
+                switch (knob)
+                {
+                    case 7:
+                        ks.update(data[2]);
+                        break;
+
+                    case 6:
+                        ks.reset();
+                        break;
+
+                    case 0:
+                        ksi.update(data[2]);
+                        break;
+                }
             }
         }
 
