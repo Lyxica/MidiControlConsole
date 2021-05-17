@@ -15,7 +15,7 @@ namespace MidiControl
         private readonly User32API.ScanCodeShort right;
 
 
-        private int current_value;
+        private int lastValue;
         private int scroll_amount;
         private int wait_time = 0;
 
@@ -30,31 +30,17 @@ namespace MidiControl
 
         public void update(int value)
         {
-            if (value == 0)
-            {
-                md.Send(new byte[] {ROUTE_ID, KNOB_CONTROLLER_ID, 1, 0});
-                //midi.SendBuffer(new byte[] { ROUTE_ID, KNOB_CONTROLLER_ID, 1, 0 });
-                return;
-            }
-
             var rel_value = value - NEUTRAL_VALUE;
 
-            if (current_value == rel_value) { return; }
 
-            if (rel_value == 0)
+            var direction = value switch
             {
-                current_value = 0;
-                scroll_amount = 0;
-                return;
-            }
-
-            var direction = (rel_value > current_value) switch
-            {
-                true => right,
-                false => left
+                0 => left,
+                127 => right,
+                _ => rel_value < lastValue ? left : right
             };
 
-            current_value = rel_value;
+            lastValue = rel_value;
             User32API.Type(new List<User32API.ScanCodeShort> {direction});
         }
     }
