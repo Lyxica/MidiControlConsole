@@ -41,9 +41,7 @@ namespace MidiControl
 
         public void reset()
         {
-            //midi.Reset();
-            md.Send(new byte[] {ROUTE_ID, KNOB_CONTROLLER_ID, NEUTRAL_VALUE, 0});
-            //midi.SendBuffer(new byte[] { ROUTE_ID, KNOB_CONTROLLER_ID, NEUTRAL_VALUE, 0 });
+            md.Send(MidiDevice.Actions.CONTROL_CHANGE, KNOB_CONTROLLER_ID, NEUTRAL_VALUE);
             current_value = 0;
         }
 
@@ -51,8 +49,7 @@ namespace MidiControl
         {
             if (value == 0)
             {
-                md.Send(new byte[] {ROUTE_ID, KNOB_CONTROLLER_ID, 1, 0});
-                //midi.SendBuffer(new byte[] { ROUTE_ID, KNOB_CONTROLLER_ID, 1, 0 });
+                md.Send(MidiDevice.Actions.CONTROL_CHANGE, KNOB_CONTROLLER_ID, 1);
                 return;
             }
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 
 namespace MidiControl
 {
@@ -25,9 +24,8 @@ namespace MidiControl
 
         public void change_color(string color, byte address)
         {
-            md.Send(new byte[] {0x80, address, 0});
-            Thread.Sleep(25);
-            md.Send(new byte[] {0x90, address, colors[color]});
+            md.Send(MidiDevice.Actions.NOTE_OFF, address, 0);
+            md.Send(MidiDevice.Actions.NOTE_ON, address, colors[color]);
         }
     }
 }
