@@ -9,16 +9,18 @@ namespace MidiControl
 {
     public class SmartPAD
     {
-        private readonly MidiDevice md;
-        private readonly MidiIn mi;
         private Dictionary<int, string> _sideButtons = new Dictionary<int, string>();
         private Dictionary<string, Action> actions;
         private DisplayShow ds;
         private KnobScroll ks;
         private KnobSendInput ksi;
+        private MidiDevice md;
+        private MidiIn mi;
         private ShutdownBtn shutdownBtn;
 
-        public SmartPAD()
+        public SmartPAD() { UpdateDevice(); }
+
+        public void UpdateDevice()
         {
             for (var i = 0; i < MidiOut.NumberOfDevices; i++)
             {
@@ -33,7 +35,16 @@ namespace MidiControl
             }
         }
 
-        public bool IsSupported() { return mi != null && md != null; }
+        public bool IsSupported()
+        {
+            for (var i = 0; i < MidiOut.NumberOfDevices; i++)
+            {
+                var name = MidiOut.DeviceInfo(i).ProductName;
+                if (name.Contains("SmartPAD")) { return true; }
+            }
+
+            return false;
+        }
 
         public void Start()
         {

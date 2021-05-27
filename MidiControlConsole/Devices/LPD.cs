@@ -12,15 +12,16 @@ namespace MidiControl
 {
     public class LPD
     {
-        private readonly MidiIn device;
-
         private readonly ConcurrentDictionary<int, MidiEvent> event_list = new ConcurrentDictionary<int, MidiEvent>();
 
         private readonly EventWaitHandle wait_event = new EventWaitHandle(false, EventResetMode.AutoReset);
+        private MidiIn device;
 
         private Dictionary<int, string> lut = new Dictionary<int, string>();
 
-        public LPD()
+        public LPD() { UpdateDevice(); }
+
+        public void UpdateDevice()
         {
             for (var i = 0; i < MidiIn.NumberOfDevices; i++)
             {
@@ -36,7 +37,16 @@ namespace MidiControl
             new Thread(ThreadProc).Start();
         }
 
-        public bool IsSupported() { return device != null; }
+        public bool IsSupported()
+        {
+            for (var i = 0; i < MidiIn.NumberOfDevices; i++)
+            {
+                var name = MidiIn.DeviceInfo(i).ProductName;
+                if (name.Contains("LPD8")) { return true; }
+            }
+
+            return false;
+        }
 
         private void ThreadProc()
         {

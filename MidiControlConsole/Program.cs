@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using MidiControl.ExternalAPI;
 
 namespace MidiControl
 {
@@ -9,6 +10,7 @@ namespace MidiControl
         private static readonly LPD lpd = new LPD();
         private static readonly SmartPAD smartpad = new SmartPAD();
         private static FileSystemWatcher watcher;
+        private static readonly USBNotification usbNotification = new USBNotification();
 
         private static readonly string UserFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "MidiController");
@@ -27,6 +29,13 @@ namespace MidiControl
             if (lpd.IsSupported()) { lpd.Start(); }
 
             LoadYml();
+
+            usbNotification.OnNewUSBDevice += () =>
+            {
+                if (smartpad.IsSupported()) { smartpad.UpdateDevice(); }
+
+                if (lpd.IsSupported()) { lpd.UpdateDevice(); }
+            };
 
             while (true)
             {
