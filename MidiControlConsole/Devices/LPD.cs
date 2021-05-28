@@ -10,7 +10,7 @@ using YamlDotNet.Serialization;
 
 namespace MidiControl
 {
-    public class LPD
+    public class LPD : MidiDevice
     {
         private readonly ConcurrentDictionary<int, MidiEvent> event_list = new ConcurrentDictionary<int, MidiEvent>();
 
@@ -19,7 +19,7 @@ namespace MidiControl
 
         private Dictionary<int, string> lut = new Dictionary<int, string>();
 
-        public LPD() { UpdateDevice(); }
+        public LPD() : base("LPD8") { UpdateDevice(); }
 
         public void UpdateDevice()
         {
