@@ -99,6 +99,8 @@ namespace MidiControl
             foreach (var match in matches) { match.SetMute(mute); }
         }
 
+
+
         private IEnumerable<AudioControl> GetMatchingAudioSessions(string proc_name)
         {
             var x = new MMDeviceEnumerator();
@@ -106,15 +108,23 @@ namespace MidiControl
 
             if (proc_name == "__System")
             {
+                Program.Log(String.Format("Received __System event"));
                 yield return new AudioControl(device);
                 yield break;
             }
 
             if (proc_name == "__ActiveProcess")
             {
+                Program.Log("Received __ActiveProcess event");
+                var info = new User32API.GUITHREADINFO();
+                info.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(info);
+                User32API.GetGUIThreadInfo(0, ref info);
+             
                 uint proc_id;
-                User32API.GetWindowThreadProcessId(User32API.GetForegroundWindow(), out proc_id);
-                proc_name = Process.GetProcessById((int) proc_id).ProcessName;
+                User32API.GetWindowThreadProcessId(info.hwndFocus, out proc_id);
+                proc_name = Process.GetProcessById((int)proc_id).ProcessName;
+                Program.Log(String.Format("\tProcess name: {0} \n\tProcess ID == `{1}", proc_name, proc_id));
+
             }
 
             var sessions = Enumerable.Range(0, device.AudioSessionManager.Sessions.Count)

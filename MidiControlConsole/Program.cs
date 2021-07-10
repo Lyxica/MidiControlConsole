@@ -11,6 +11,7 @@ namespace MidiControl
         private static readonly SmartPAD smartpad = new SmartPAD();
         private static FileSystemWatcher watcher;
         private static readonly USBNotification usbNotification = new USBNotification();
+        public static bool showDebug = false;
 
         private static readonly string UserFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "MidiController");
@@ -39,11 +40,38 @@ namespace MidiControl
 
             while (true)
             {
+            StartOfLoop:
+                Console.Clear();
+                Console.WriteLine(String.Format("Debugging: {0}", showDebug));
                 Console.WriteLine("Found the following audio session names:");
-                foreach (var name in lpd.GetAudioSessionNames()) Console.WriteLine(name);
+                foreach (var name in lpd.GetAudioSessionNames()) Console.WriteLine(String.Format("\t{0}", name));
 
-                Console.WriteLine("\nPress any key to print audio session names again.");
-                Console.ReadLine();
+                Console.WriteLine("\nKey controls:\n\tF9 = Toggle debug messages\n\tEnter = Print audio session names");
+
+
+                while (true) {
+                    var key = Console.ReadKey();
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.F9:
+                            showDebug = !showDebug;
+                            goto StartOfLoop;
+
+                        case ConsoleKey.Enter:
+                            goto StartOfLoop;
+
+                        default:
+                            continue;
+                    }
+                }
+            }
+        }
+
+        public static void Log(string msg)
+        {
+            if (showDebug)
+            {
+                Console.WriteLine(msg);
             }
         }
 

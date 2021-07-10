@@ -92,10 +92,27 @@ namespace MidiControl
             [MarshalAs(UnmanagedType.LPArray)] [In]
             INPUT[] pInputs,
             int cbSize);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetGUIThreadInfo(uint idThread, ref GUITHREADINFO lpgui);
+
     }
 
     public partial class User32API
     {
+        public struct GUITHREADINFO
+        {
+            public int cbSize;
+            public int flags;
+            public IntPtr hwndActive;
+            public IntPtr hwndFocus;
+            public IntPtr hwndCapture;
+            public IntPtr hwndMenuOwner;
+            public IntPtr hwndMoveSize;
+            public IntPtr hwndCaret;
+            public System.Drawing.Rectangle rcCaret;
+        }
+
         [Flags]
         public enum KEYEVENTF : uint
         {
